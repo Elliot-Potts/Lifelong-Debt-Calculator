@@ -17,6 +17,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import requests
 import ctypes
 import sys
+import re
 
 
 class Ui_MainWindow(object):
@@ -94,6 +95,8 @@ class AppLogic(QtWidgets.QMainWindow, Ui_MainWindow):
         QtWidgets.QMainWindow.__init__(self, *args, **kwargs)
         self.setupUi(self)
 
+        self.main_url = "https://www.gov.uk/student-finance-calculator/y/2020-2021/uk-full-time/9250.0/away-outside-london/{}.0/no/none-of-the-above"
+
         self.btnCalculate.setFocus()
 
         self.txtCalculationAmount.setVisible(False)
@@ -112,15 +115,18 @@ class AppLogic(QtWidgets.QMainWindow, Ui_MainWindow):
     def set_debt_calc_text(self, debt_amount, year_amount):
         self.txtDebtCalculation.setText("<html><head/><body><p align=\"center\">Our generous government will only require<br/>you to repay <span style=\" font-weight:600;\">£{} </span>for your<br/><span style=\" font-weight:600;\">{} years </span>of study...<br/><span style=\" font-size:6pt;\">assuming £9.2K tuition*</span></p></body></html>".format(str(debt_amount), str(year_amount)))
 
+    def get_maintenance_loan(self, income_field):
+        pass
+
     def maintenance_calculation(self):
-        get_income_field = self.incomeEntry.text().strip(" ")
+        get_income_field = re.sub('[^0-9]', '', self.incomeEntry.text())
 
         if len(get_income_field) == 0:
             print(" [-] Calculation on nothing...")
             self.btnCalculate.setText("Enter a valid number then click again.")
         else:
             self.reset_calculate_button()
-            print(" [+] Entered {}.".format(get_income_field))
+            print(" [+] Making request to {}.".format(self.main_url.format(get_income_field)))
 
     def debt_calculation(self):
         pass
