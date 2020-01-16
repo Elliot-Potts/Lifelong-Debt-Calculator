@@ -94,19 +94,42 @@ class AppLogic(QtWidgets.QMainWindow, Ui_MainWindow):
         QtWidgets.QMainWindow.__init__(self, *args, **kwargs)
         self.setupUi(self)
 
+        self.btnCalculate.setFocus()
+
+        self.txtCalculationAmount.setVisible(False)
+        self.txtDebtCalculation.setVisible(False)
+
+        self.btnCalculate.clicked.connect(self.maintenance_calculation)
+        self.btnDebtCalculator.clicked.connect(self.debt_calculation)
+
+    def reset_calculate_button(self):
+        self.btnCalculate.setText("Calculate")
+        self.btnDebtCalculator.setText("Calculate debt!")
+
+    def set_maintenance_loan_text(self, number):
+        self.txtCalculationAmount.setText("<html><head/><body><p align=\"center\">You could receieve <span style=\" font-weight:600;\">£{} </span>in maintenance loans<br/>to be fully repaid until you\'re 105 years old!</p></body></html>".format(str(number)))
+
+    def set_debt_calc_text(self, debt_amount, year_amount):
+        self.txtDebtCalculation.setText("<html><head/><body><p align=\"center\">Our generous government will only require<br/>you to repay <span style=\" font-weight:600;\">£{} </span>for your<br/><span style=\" font-weight:600;\">{} years </span>of study...<br/><span style=\" font-size:6pt;\">assuming £9.2K tuition*</span></p></body></html>".format(str(debt_amount), str(year_amount)))
+
     def maintenance_calculation(self):
-        pass
+        get_income_field = self.incomeEntry.text().strip(" ")
+
+        if len(get_income_field) == 0:
+            print(" [-] Calculation on nothing...")
+            self.btnCalculate.setText("Enter a valid number then click again.")
+        else:
+            self.reset_calculate_button()
+            print(" [+] Entered {}.".format(get_income_field))
 
     def debt_calculation(self):
         pass
 
 
 if __name__ == "__main__":
-    appId = "elliotpotts.net"
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    ui = AppLogic()
+    ui.show()
     sys.exit(app.exec_())
 
