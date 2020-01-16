@@ -9,5 +9,6 @@ So, this simple UI will allow me to check my household income-based maintenance 
 
 ## Note
 
-I'm not a fan of Student Finance's lack of support for the middle-class, but I do appreciate the system. This application is made semi-jokingly.
+I'm not a fan of Student Finance's lack of support for the middle-class, but I do appreciate the system.
+This application is made semi-jokingly, hence the lack of convention.
 
