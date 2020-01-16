@@ -14,6 +14,7 @@ Written by Elliot Potts
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from lxml import html
 import requests
 import ctypes
 import sys
@@ -110,26 +111,38 @@ class AppLogic(QtWidgets.QMainWindow, Ui_MainWindow):
         self.btnDebtCalculator.setText("Calculate debt!")
 
     def set_maintenance_loan_text(self, number):
+        number = format(int(number), ",d")
         self.txtCalculationAmount.setText("<html><head/><body><p align=\"center\">You could receieve <span style=\" font-weight:600;\">£{} </span>in maintenance loans<br/>to be fully repaid until you\'re 105 years old!</p></body></html>".format(str(number)))
 
     def set_debt_calc_text(self, debt_amount, year_amount):
+        debt_amount = format(int(debt_amount), ",d")
         self.txtDebtCalculation.setText("<html><head/><body><p align=\"center\">Our generous government will only require<br/>you to repay <span style=\" font-weight:600;\">£{} </span>for your<br/><span style=\" font-weight:600;\">{} years </span>of study...<br/><span style=\" font-size:6pt;\">assuming £9.2K tuition*</span></p></body></html>".format(str(debt_amount), str(year_amount)))
 
     def get_maintenance_loan(self, income_field):
+        build_url = self.main_url.format(income_field)
+        # print(" [+] Checking result of request to: {}".format(build_url))
+
+        get_page_download = requests.get(build_url).content
+        get_html_tree = html.fromstring(get_page_download)
+
+        get_main_content = get_html_tree.xpath('//*[@id="result-info"]/div[2]/ul/li[2]/p')[0].text
+        get_main_content = re.sub('[^0-9]', '', get_main_content)
+
+        self.set_maintenance_loan_text(get_main_content)
+        self.txtCalculationAmount.setVisible(True)
+
+    def debt_calculation(self):
         pass
 
     def maintenance_calculation(self):
         get_income_field = re.sub('[^0-9]', '', self.incomeEntry.text())
 
         if len(get_income_field) == 0:
-            print(" [-] Calculation on nothing...")
+            # print(" [-] Calculation on nothing...")
             self.btnCalculate.setText("Enter a valid number then click again.")
         else:
             self.reset_calculate_button()
-            print(" [+] Making request to {}.".format(self.main_url.format(get_income_field)))
-
-    def debt_calculation(self):
-        pass
+            self.get_maintenance_loan(get_income_field)
 
 
 if __name__ == "__main__":
