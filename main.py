@@ -14,6 +14,7 @@ Written by Elliot Potts
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from math import floor
 from lxml import html
 import requests
 import ctypes
@@ -97,6 +98,7 @@ class AppLogic(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         self.main_url = "https://www.gov.uk/student-finance-calculator/y/2020-2021/uk-full-time/9250.0/away-outside-london/{}.0/no/none-of-the-above"
+        self.maintenance_calculation_number = 0
 
         self.btnCalculate.setFocus()
 
@@ -128,11 +130,32 @@ class AppLogic(QtWidgets.QMainWindow, Ui_MainWindow):
         get_main_content = get_html_tree.xpath('//*[@id="result-info"]/div[2]/ul/li[2]/p')[0].text
         get_main_content = re.sub('[^0-9]', '', get_main_content)
 
+        self.maintenance_calculation_number = get_main_content
         self.set_maintenance_loan_text(get_main_content)
         self.txtCalculationAmount.setVisible(True)
 
     def debt_calculation(self):
-        pass
+        if self.maintenance_calculation_number == 0:
+            self.btnDebtCalculator.setText("Do above first")
+        else:
+            if self.yearEntry.text() == "0":
+                self.btnDebtCalculator.setText("Set years first")
+            else:
+                self.reset_calculate_button()
+                get_year_count = self.yearEntry.text()
+
+                INTEREST_RATE = 0.054
+                total = 0
+
+                for ixl in range(int(self.yearEntry.text())):
+                    total += (9250 + int(self.maintenance_calculation_number))
+                    interest = total * INTEREST_RATE
+                    total += interest
+
+                total = floor(total)
+
+                self.set_debt_calc_text(total, get_year_count)
+                self.txtDebtCalculation.setVisible(True)
 
     def maintenance_calculation(self):
         get_income_field = re.sub('[^0-9]', '', self.incomeEntry.text())
